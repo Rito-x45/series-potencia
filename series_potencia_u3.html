@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Series de Potencia · Radio e Intervalo de Convergencia</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.0/math.min.js"></script>
+<style>
+
+:root {
+  --ink: #0d0d0d;
+  --paper: #f5f2eb;
+  --paper2: #ede9df;
+  --accent: #c8390a;
+  --accent2: #1a5c8a;
+  --muted: #6b6457;
+  --border: #d4cfc4;
+  --tag-cv: #0b6e40;
+  --tag-cv-bg: #d4f0e1;
+  --tag-dv: #9b1c1c;
+  --tag-dv-bg: #fde8e8;
+  --tag-ic: #7c4a00;
+  --tag-ic-bg: #fef3c7;
+  --mono: 'DM Mono', monospace;
+  --serif: 'DM Serif Display', serif;
+  --sans: 'Syne', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* ───── HEADER ───── */
+.cover {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 56px 40px 44px;
+  position: relative;
+  overflow: hidden;
+}
+.cover::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 260px; height: 260px;
+  border: 56px solid rgba(200,57,10,0.2);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.cover::after {
+  content: '';
+  position: absolute;
+  bottom: -50px; left: 40px;
+  width: 180px; height: 180px;
+  border: 36px solid rgba(26,92,138,0.15);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.cover-inner { max-width: 800px; margin: 0 auto; position: relative; }
+.cover-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.cover h1 {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.1;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+.cover h1 em { color: var(--accent); font-style: italic; }
+.cover-sub {
+  font-size: 13px;
+  color: rgba(245,242,235,0.55);
+  max-width: 480px;
+}
+
+.content { max-width: 800px; margin: 0 auto; padding: 44px 40px 80px; }
+
+/* ───── PANEL ───── */
+.panel {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 30px;
+  margin-bottom: 28px;
+}
+.panel-title {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  margin-bottom: 6px;
+}
+.panel-title em { color: var(--accent); font-style: italic; }
+.panel-sub { font-size: 13px; color: var(--muted); margin-bottom: 22px; }
+
+label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.input-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.field { flex: 1; min-width: 160px; }
+
+input[type="text"] {
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 16px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s;
+}
+input[type="text"]:focus { border-color: var(--accent2); }
+input[type="text"].invalid { border-color: var(--tag-dv); background: var(--tag-dv-bg); }
+
+.center-eq {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--muted);
+  white-space: nowrap;
+  padding-top: 28px;
+}
+
+.symbol-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 10px 0 20px;
+}
+.symbol-btn {
+  font-family: var(--mono);
+  font-size: 13px;
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: var(--ink);
+  transition: all 0.15s;
+}
+.symbol-btn:hover { background: var(--ink); color: var(--paper); }
+
+.preset-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 4px 0 24px;
+}
+.preset-btn {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 12px;
+  background: #fff;
+  border: 1px solid var(--accent2);
+  color: var(--accent2);
+  border-radius: 20px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.preset-btn:hover { background: var(--accent2); color: #fff; }
+
+.method-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.method-card {
+  flex: 1;
+  min-width: 150px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: #fff;
+}
+.method-card:hover { border-color: #a09890; }
+.method-card.active {
+  border-color: var(--accent);
+  background: #fff8f6;
+}
+.method-card-name { font-weight: 700; font-size: 13px; }
+.method-card-rule { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+.solve-btn {
+  width: 100%;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 10px;
+  padding: 16px;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.15s;
+  letter-spacing: 0.02em;
+}
+.solve-btn:hover { background: var(--accent); }
+.solve-btn:active { transform: scale(0.99); }
+.solve-btn:disabled { opacity: 0.6; cursor: wait; }
+
+/* ───── RESULTS ───── */
+.results { margin-top: 28px; display: none; }
+.results.show { display: block; }
+
+.result-hero {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.result-stat {
+  flex: 1;
+  min-width: 140px;
+  background: var(--paper2);
+  border-radius: 10px;
+  padding: 16px 18px;
+  text-align: center;
+}
+.result-stat-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.result-stat-value {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  color: var(--ink);
+}
+.result-stat-value.accent { color: var(--accent); }
+
+.interval-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 24px 0;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.interval-endpoint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 90px;
+}
+.interval-endpoint-val { font-size: 15px; font-weight: 700; }
+.interval-line {
+  flex: 1;
+  height: 3px;
+  background: linear-gradient(90deg, var(--border), var(--accent2), var(--border));
+  border-radius: 2px;
+  position: relative;
+}
+.interval-line::after {
+  content: '•';
+  position: absolute;
+  left: 50%;
+  top: -9px;
+  transform: translateX(-50%);
+  color: var(--accent);
+  font-size: 20px;
+}
+
+.steps-out {
+  list-style: none;
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+}
+.steps-out li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13.5px;
+}
+.steps-out li:first-child { border-top: 1px solid var(--border); }
+.steps-out li strong { display: block; margin-bottom: 3px; font-size: 12px; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em; }
+.steps-out li .math { font-family: var(--mono); font-size: 14px; color: var(--ink); }
+
+.endpoint-block {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+.endpoint-block-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 10px;
+}
+.endpoint-block-title { font-weight: 700; font-size: 13.5px; }
+.endpoint-block-series { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.endpoint-block-note { font-size: 12.5px; color: var(--ink); }
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 4px;
+  padding: 3px 9px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+.tag.cv { background: var(--tag-cv-bg); color: var(--tag-cv); }
+.tag.dv { background: var(--tag-dv-bg); color: var(--tag-dv); }
+.tag.ic { background: var(--tag-ic-bg); color: var(--tag-ic); }
+
+.final-verdict {
+  border-left: 3px solid var(--accent);
+  background: var(--paper2);
+  padding: 16px 20px;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  margin-top: 20px;
+}
+.final-verdict strong { color: var(--accent); }
+
+.error-box {
+  background: var(--tag-dv-bg);
+  border: 1px solid var(--tag-dv);
+  color: var(--tag-dv);
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 13px;
+  margin-top: 16px;
+}
+
+.precision-note {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 10px;
+  font-family: var(--mono);
+}
+
+/* ───── HELP SECTION ───── */
+.help-section { margin-top: 36px; }
+.syntax-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.syntax-table th {
+  text-align: left;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+  font-size: 11px;
+}
+.syntax-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.syntax-table tr:nth-child(even) td { background: var(--paper2); }
+.syntax-table code { font-family: var(--mono); color: var(--accent); }
+
+footer {
+  background: var(--ink);
+  color: rgba(245,242,235,0.4);
+  text-align: center;
+  padding: 28px 24px;
+  font-size: 11px;
+  font-family: var(--mono);
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 600px) {
+  .cover { padding: 40px 20px 32px; }
+  .content { padding: 32px 20px 60px; }
+  .panel { padding: 20px; }
+  .center-eq { display: none; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-inner">
+    <div class="cover-label">Cálculo Aplicado · Unidad 3</div>
+    <h1>Series de <em>Potencia</em></h1>
+    <p class="cover-sub">Calcula el radio de convergencia, el intervalo y comprueba automáticamente el comportamiento en ambos extremos. Funciona con factoriales, potencias y exponenciales sin desbordar.</p>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ═══ PANEL DE ENTRADA ═══ -->
+  <div class="panel">
+    <div class="panel-title">Define tu serie <em>Σ cₙ(x − a)ⁿ</em></div>
+    <div class="panel-sub">Escribe el coeficiente cₙ en función de n, y el centro de la serie a. La variable de la serie es <code style="font-family:var(--mono);color:var(--accent);">x</code>, la variable de la sucesión de coeficientes es <code style="font-family:var(--mono);color:var(--accent);">n</code>.</div>
+
+    <div class="input-row">
+      <div class="field">
+        <label>Coeficiente cₙ (en función de n)</label>
+        <input type="text" id="coefInput" placeholder="ej. 1/n!  ó  (-1)^n / (2^n)" value="1/n!" />
+      </div>
+      <div class="center-eq">(x −</div>
+      <div class="field" style="max-width:120px;">
+        <label>Centro a</label>
+        <input type="text" id="centerInput" placeholder="0" value="0" />
+      </div>
+      <div class="center-eq">)ⁿ</div>
+    </div>
+
+    <div class="symbol-row">
+      <button class="symbol-btn" data-insert="coefInput" data-val="^">^</button>
+      <button class="symbol-btn" data-insert="coefInput" data-val="!">!</button>
+      <button class="symbol-btn" data-insert="coefInput" data-val="sqrt()">√</button>
+      <button class="symbol-btn" data-insert="coefInput" data-val="(-1)^n">(-1)ⁿ</button>
+      <button class="symbol-btn" data-insert="coefInput" data-val="log()">log</button>
+      <button class="symbol-btn" data-insert="coefInput" data-val="2^n">2ⁿ</button>
+      <button class="symbol-btn" data-insert="coefInput" data-val="n!">n!</button>
+    </div>
+
+    <div class="preset-row">
+      <button class="preset-btn" data-coef="1/n!" data-center="0">eˣ → 1/n!</button>
+      <button class="preset-btn" data-coef="(-1)^n/(2*n+1)!" data-center="0">sin(x) → (-1)ⁿ/(2n+1)!</button>
+      <button class="preset-btn" data-coef="1/(n+1)" data-center="0">1/(n+1)</button>
+      <button class="preset-btn" data-coef="(-1)^n/n" data-center="1">(-1)ⁿ/n, a=1</button>
+      <button class="preset-btn" data-coef="n!/n^n" data-center="0">n!/nⁿ</button>
+      <button class="preset-btn" data-coef="3^n/n" data-center="2">3ⁿ/n, a=2</button>
+      <button class="preset-btn" data-coef="n!" data-center="0">n!</button>
+      <button class="preset-btn" data-coef="n^n/n!" data-center="0">nⁿ/n!</button>
+    </div>
+
+    <label style="margin-bottom:10px;">Método para el radio de convergencia</label>
+    <div class="method-row">
+      <div class="method-card active" data-method="ratio">
+        <div class="method-card-name">Criterio de la Razón</div>
+        <div class="method-card-rule">L = lim |c_(n+1)/cₙ|</div>
+      </div>
+      <div class="method-card" data-method="root">
+        <div class="method-card-name">Criterio de la Raíz</div>
+        <div class="method-card-rule">L = lim ⁿ√|cₙ|</div>
+      </div>
+    </div>
+
+    <button class="solve-btn" id="solveBtn">Calcular Radio e Intervalo de Convergencia</button>
+
+    <div id="errorBox"></div>
+  </div>
+
+  <!-- ═══ RESULTADOS ═══ -->
+  <div class="panel results" id="resultsPanel">
+    <div class="panel-title">Resultado del <em>análisis</em></div>
+
+    <div class="result-hero">
+      <div class="result-stat">
+        <div class="result-stat-label">Radio de Convergencia</div>
+        <div class="result-stat-value accent" id="radiusVal">—</div>
+      </div>
+      <div class="result-stat">
+        <div class="result-stat-label">Centro</div>
+        <div class="result-stat-value" id="centerVal">—</div>
+      </div>
+      <div class="result-stat">
+        <div class="result-stat-label">L (límite)</div>
+        <div class="result-stat-value" id="limitVal">—</div>
+      </div>
+    </div>
+
+    <div class="interval-bar" id="intervalBar"></div>
+
+    <div class="precision-note" id="precisionNote"></div>
+
+    <label style="margin-top:24px;">Procedimiento</label>
+    <ul class="steps-out" id="stepsOut"></ul>
+
+    <label style="margin-top:24px;">Comprobación en los extremos</label>
+    <div id="endpointsOut" style="margin-top:10px;"></div>
+
+    <div class="final-verdict" id="finalVerdict"></div>
+  </div>
+
+  <!-- ═══ SINTAXIS ═══ -->
+  <div class="panel help-section">
+    <div class="panel-title" style="font-size:1.1rem;">Guía de <em>sintaxis</em></div>
+    <table class="syntax-table">
+      <thead><tr><th>Símbolo</th><th>Escríbelo así</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td>Potencia</td><td><code>n^k</code></td><td><code>2^n</code>, <code>n^2</code>, <code>n^n</code></td></tr>
+        <tr><td>Factorial</td><td><code>n!</code></td><td><code>(2*n)!</code>, <code>n!</code></td></tr>
+        <tr><td>Raíz cuadrada</td><td><code>sqrt()</code></td><td><code>sqrt(n)</code></td></tr>
+        <tr><td>Logaritmo natural</td><td><code>log()</code></td><td><code>log(n+1)</code></td></tr>
+        <tr><td>Multiplicación</td><td><code>*</code></td><td><code>2*n</code> (no <code>2n</code>)</td></tr>
+        <tr><td>Alternancia de signo</td><td><code>(-1)^n</code></td><td><code>(-1)^n/n</code></td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:12.5px;color:var(--muted);margin-top:16px;">Esta herramienta evalúa los coeficientes en <strong>espacio logarítmico</strong> internamente, por lo que series con factoriales (<code style="font-family:var(--mono);color:var(--accent);">n!</code>) o potencias grandes (<code style="font-family:var(--mono);color:var(--accent);">3ⁿ</code>, <code style="font-family:var(--mono);color:var(--accent);">nⁿ</code>) se calculan con la misma precisión que series simples, sin desbordar.</p>
+  </div>
+
+</div>
+
+<footer>Cálculo Aplicado ESCOM · Unidad 3 · Series de Potencia</footer>
+
+<script>
+
+// ════════════════════════════════════════════════════════════════
+// MOTOR MATEMÁTICO — espacio logarítmico, inmune a overflow/underflow
+// ════════════════════════════════════════════════════════════════
+
+function lnFactorial(n) {
+  if (n < 0) return NaN;
+  if (n === 0 || n === 1) return 0;
+  if (n < 20) {
+    let s = 0;
+    for (let k = 2; k <= n; k++) s += Math.log(k);
+    return s;
+  }
+  // Serie de Stirling con correcciones, error < 1e-10 para n >= 20
+  return n * Math.log(n) - n + 0.5 * Math.log(2 * Math.PI * n)
+    + 1 / (12 * n) - 1 / (360 * Math.pow(n, 3)) + 1 / (1260 * Math.pow(n, 5));
+}
+
+function sanitizeExpr(expr) {
+  let e = expr.trim();
+  e = e.replace(/([a-zA-Z0-9_]+|\([^()]*\))!/g, 'factorial($1)');
+  return e;
+}
+
+function evalRealSmall(node, scope) {
+  const code = node.compile();
+  return code.evaluate(scope);
+}
+
+function logEval(node, scope) {
+  switch (node.type) {
+    case 'ConstantNode': {
+      const v = node.value;
+      if (v === 0) return { sign: 0, ln: -Infinity };
+      return { sign: Math.sign(v), ln: Math.log(Math.abs(v)) };
+    }
+    case 'SymbolNode': {
+      if (node.name === 'pi') return { sign: 1, ln: Math.log(Math.PI) };
+      if (node.name === 'e') return { sign: 1, ln: 1 };
+      if (Object.prototype.hasOwnProperty.call(scope, node.name)) {
+        const v = scope[node.name];
+        if (v === 0) return { sign: 0, ln: -Infinity };
+        return { sign: Math.sign(v), ln: Math.log(Math.abs(v)) };
+      }
+      throw new Error('Símbolo no definido: ' + node.name);
+    }
+    case 'ParenthesisNode':
+      return logEval(node.content, scope);
+    case 'OperatorNode': {
+      const op = node.op;
+      if (node.fn === 'unaryMinus') {
+        const a = logEval(node.args[0], scope);
+        return { sign: -a.sign, ln: a.ln };
+      }
+      if (node.fn === 'unaryPlus') return logEval(node.args[0], scope);
+
+      const a = logEval(node.args[0], scope);
+      const b = node.args[1] !== undefined ? logEval(node.args[1], scope) : null;
+
+      switch (op) {
+        case '+':
+        case '-': {
+          const effB = op === '-' ? { sign: -b.sign, ln: b.ln } : b;
+          if (a.ln < 700 && effB.ln < 700) {
+            const av = a.sign * Math.exp(a.ln);
+            const bv = effB.sign * Math.exp(effB.ln);
+            const r = av + bv;
+            if (r === 0) return { sign: 0, ln: -Infinity };
+            return { sign: Math.sign(r), ln: Math.log(Math.abs(r)) };
+          }
+          if (a.ln === effB.ln) {
+            if (a.sign === effB.sign) return { sign: a.sign, ln: a.ln + Math.log(2) };
+            return { sign: 0, ln: -Infinity };
+          }
+          return a.ln > effB.ln ? a : effB;
+        }
+        case '*': {
+          if (a.sign === 0 || b.sign === 0) return { sign: 0, ln: -Infinity };
+          return { sign: a.sign * b.sign, ln: a.ln + b.ln };
+        }
+        case '/': {
+          if (b.sign === 0) return { sign: NaN, ln: NaN };
+          if (a.sign === 0) return { sign: 0, ln: -Infinity };
+          return { sign: a.sign * b.sign, ln: a.ln - b.ln };
+        }
+        case '^': {
+          const expVal = evalRealSmall(node.args[1], scope);
+          if (a.sign === 0) {
+            if (expVal === 0) return { sign: 1, ln: 0 };
+            return expVal > 0 ? { sign: 0, ln: -Infinity } : { sign: NaN, ln: NaN };
+          }
+          if (a.sign < 0 && !Number.isInteger(expVal)) return { sign: NaN, ln: NaN };
+          const newLn = a.ln * expVal;
+          let newSign = 1;
+          if (a.sign < 0) newSign = (Math.round(expVal) % 2 === 0) ? 1 : -1;
+          return { sign: newSign, ln: newLn };
+        }
+        default:
+          throw new Error('Operador no soportado: ' + op);
+      }
+    }
+    case 'FunctionNode': {
+      const fname = node.fn.name;
+      const argsReal = node.args.map(a => evalRealSmall(a, scope));
+      switch (fname) {
+        case 'factorial': {
+          const nArg = argsReal[0];
+          if (nArg < 0 || !Number.isInteger(nArg)) {
+            const v = math.factorial(nArg);
+            if (v === 0) return { sign: 0, ln: -Infinity };
+            return { sign: Math.sign(v), ln: Math.log(Math.abs(v)) };
+          }
+          return { sign: 1, ln: lnFactorial(nArg) };
+        }
+        case 'sqrt': {
+          const a = logEval(node.args[0], scope);
+          if (a.sign < 0) return { sign: NaN, ln: NaN };
+          if (a.sign === 0) return { sign: 0, ln: -Infinity };
+          return { sign: 1, ln: a.ln / 2 };
+        }
+        case 'cbrt': {
+          const a = logEval(node.args[0], scope);
+          if (a.sign === 0) return { sign: 0, ln: -Infinity };
+          return { sign: a.sign, ln: a.ln / 3 };
+        }
+        case 'abs': {
+          const a = logEval(node.args[0], scope);
+          return { sign: a.sign === 0 ? 0 : 1, ln: a.ln };
+        }
+        case 'exp': {
+          return { sign: 1, ln: argsReal[0] };
+        }
+        case 'log': {
+          const x = argsReal[0];
+          if (x <= 0) return { sign: NaN, ln: NaN };
+          const lnx = Math.log(x);
+          if (argsReal.length > 1) {
+            const v = lnx / Math.log(argsReal[1]);
+            return { sign: Math.sign(v) || 0, ln: Math.log(Math.abs(v) || 1e-300) };
+          }
+          return { sign: Math.sign(lnx) || 0, ln: Math.log(Math.abs(lnx) || 1e-300) };
+        }
+        case 'log10': {
+          const x = argsReal[0];
+          if (x <= 0) return { sign: NaN, ln: NaN };
+          const v = Math.log10(x);
+          return { sign: Math.sign(v) || 0, ln: Math.log(Math.abs(v) || 1e-300) };
+        }
+        case 'log2': {
+          const x = argsReal[0];
+          if (x <= 0) return { sign: NaN, ln: NaN };
+          const v = Math.log2(x);
+          return { sign: Math.sign(v) || 0, ln: Math.log(Math.abs(v) || 1e-300) };
+        }
+        case 'sin': case 'cos': case 'tan': {
+          const v = Math[fname](argsReal[0]);
+          if (v === 0) return { sign: 0, ln: -Infinity };
+          return { sign: Math.sign(v), ln: Math.log(Math.abs(v)) };
+        }
+        default: {
+          const v = math.evaluate(node.toString(), scope);
+          if (typeof v !== 'number') return { sign: NaN, ln: NaN };
+          if (v === 0) return { sign: 0, ln: -Infinity };
+          return { sign: Math.sign(v), ln: Math.log(Math.abs(v)) };
+        }
+      }
+    }
+    default:
+      throw new Error('Nodo no soportado: ' + node.type);
+  }
+}
+
+function logMagnitude(exprRaw, nVal) {
+  const expr = sanitizeExpr(exprRaw);
+  const ast = math.parse(expr);
+  return logEval(ast, { n: nVal });
+}
+
+// ════════════════════════════════════════════════════════════════
+// ANÁLISIS DE CONVERGENCIA
+// ════════════════════════════════════════════════════════════════
+
+function aitken(seq) {
+  const out = [];
+  for (let i = 0; i + 2 < seq.length; i++) {
+    const x0 = seq[i], x1 = seq[i + 1], x2 = seq[i + 2];
+    const denom = (x2 - 2 * x1 + x0);
+    if (Math.abs(denom) < 1e-14) { out.push(x2); continue; }
+    out.push(x2 - Math.pow(x2 - x1, 2) / denom);
+  }
+  return out;
+}
+
+function makeLnCoefFn(exprRaw) {
+  return (nVal) => {
+    try {
+      const r = logMagnitude(exprRaw, nVal);
+      if (Number.isNaN(r.sign) || Number.isNaN(r.ln)) return null;
+      return r;
+    } catch (e) {
+      return null;
+    }
+  };
+}
+
+function denseLadder(maxN, start) {
+  maxN = maxN || 2.2e5;
+  start = start || 50;
+  const ns = [];
+  let n = start;
+  while (n < maxN) { ns.push(Math.round(n)); n *= 1.4; }
+  return ns;
+}
+
+function ratioTestL(exprRaw) {
+  const lnFn = makeLnCoefFn(exprRaw);
+  const ns = denseLadder();
+  const diffs = [];
+  for (const n of ns) {
+    const a = lnFn(n), b = lnFn(n + 1);
+    if (!a || !b || a.sign === 0 || b.sign === 0) continue;
+    diffs.push(b.ln - a.ln);
+  }
+  if (diffs.length < 5) return { L: NaN, confidence: 'none' };
+
+  const lastFew = diffs.slice(-6);
+  const stable = lastFew.every((v, i) => i === 0 || Math.abs(v - lastFew[i - 1]) < 1e-9 * Math.max(1, Math.abs(v)));
+  if (stable) return { L: Math.exp(lastFew[lastFew.length - 1]), confidence: 'exact' };
+
+  const tailCheck = diffs.slice(-6);
+  const spreadCheck = Math.abs(tailCheck[tailCheck.length - 1] - tailCheck[0]);
+  const trendUp = tailCheck.every((v, i) => i === 0 || v >= tailCheck[i - 1] - 1e-9) && spreadCheck > 0.5;
+  const trendDown = tailCheck.every((v, i) => i === 0 || v <= tailCheck[i - 1] + 1e-9) && spreadCheck > 0.5;
+  if (trendUp) return { L: Infinity, confidence: 'high' };
+  if (trendDown) return { L: 0, confidence: 'high' };
+
+  let accelerated = diffs;
+  for (let pass = 0; pass < 3 && accelerated.length >= 5; pass++) accelerated = aitken(accelerated);
+  const finalDiff = accelerated[accelerated.length - 1];
+  if (!Number.isFinite(finalDiff)) return { L: NaN, confidence: 'low' };
+  return { L: Math.exp(finalDiff), confidence: 'high' };
+}
+
+function rootTestL(exprRaw) {
+  const lnFn = makeLnCoefFn(exprRaw);
+  const ns = denseLadder();
+  const vals = [];
+  for (const n of ns) {
+    const a = lnFn(n);
+    if (!a || a.sign === 0) continue;
+    vals.push(a.ln / n);
+  }
+  if (vals.length < 5) return { L: NaN, confidence: 'none' };
+
+  const tail = vals.slice(-6);
+  const spread = Math.abs(tail[tail.length - 1] - tail[0]);
+  const allNegTrend = tail.every((v, i) => i === 0 || v <= tail[i - 1] + 1e-9) && spread > 0.5;
+  const allPosTrend = tail.every((v, i) => i === 0 || v >= tail[i - 1] - 1e-9) && spread > 0.5;
+  if (allNegTrend) return { L: 0, confidence: 'high' };
+  if (allPosTrend) return { L: Infinity, confidence: 'high' };
+
+  const lastFew = vals.slice(-6);
+  const stable = lastFew.every((v, i) => i === 0 || Math.abs(v - lastFew[i - 1]) < 1e-9);
+  if (stable) return { L: Math.exp(lastFew[lastFew.length - 1]), confidence: 'exact' };
+
+  let accelerated = vals;
+  for (let pass = 0; pass < 3 && accelerated.length >= 5; pass++) accelerated = aitken(accelerated);
+  const finalLnL = accelerated[accelerated.length - 1];
+  if (!Number.isFinite(finalLnL)) return { L: NaN, confidence: 'low' };
+  return { L: Math.exp(finalLnL), confidence: 'high' };
+}
+
+function linearRegression(xs, ys) {
+  const n = xs.length;
+  const sumX = xs.reduce((a, b) => a + b, 0);
+  const sumY = ys.reduce((a, b) => a + b, 0);
+  const sumXY = xs.reduce((a, b, i) => a + b * ys[i], 0);
+  const sumXX = xs.reduce((a, b) => a + b * b, 0);
+  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+  return { slope };
+}
+
+function fmtX(x) {
+  if (Math.abs(x - Math.round(x)) < 1e-9) return String(Math.round(x));
+  return x.toPrecision(6);
+}
+
+function analyzeEndpoint(exprRaw, xVal, center) {
+  const lnFn = makeLnCoefFn(exprRaw);
+  const delta = xVal - center;
+
+  if (delta === 0) {
+    return { verdict: 'cv', reason: 'trivial', detail: 'x coincide con el centro de la serie; sólo queda el primer término.' };
+  }
+
+  const lnAbsDelta = Math.log(Math.abs(delta));
+  const deltaSign = Math.sign(delta);
+
+  function termSignAndLn(n) {
+    const c = lnFn(n);
+    if (!c || c.sign === 0) return { sign: 0, ln: -Infinity };
+    const dPow = deltaSign === 1 ? 1 : (n % 2 === 0 ? 1 : -1);
+    return { sign: c.sign * dPow, ln: c.ln + n * lnAbsDelta };
+  }
+
+  const ns = denseLadder(1e5, 50);
+  const series = ns.map(n => Object.assign({ n: n }, termSignAndLn(n)));
+  const usable = series.filter(t => Number.isFinite(t.ln));
+
+  if (usable.length < 5) {
+    return { verdict: 'ic', reason: 'no-data', detail: 'No fue posible evaluar suficientes términos en este punto con precisión numérica suficiente. Conviene revisarlo a mano.' };
+  }
+
+  const tail = usable.slice(-6).map(t => t.ln);
+  const spread = tail[tail.length - 1] - tail[0];
+  const monotoneDecreasing = tail.every((v, i) => i === 0 || v <= tail[i - 1] + 1e-7);
+
+  if (spread > 0.5 || (!monotoneDecreasing && Math.abs(spread) < 0.5)) {
+    if (spread > 0.5) {
+      return { verdict: 'dv', reason: 'nth-term-grows', detail: 'El término general no tiende a 0 (su magnitud crece) en x = ' + fmtX(xVal) + ' → por el criterio del n-ésimo término, la serie diverge.' };
+    }
+    return { verdict: 'dv', reason: 'nth-term-const', detail: 'El término general se estabiliza en un valor distinto de 0 en x = ' + fmtX(xVal) + ' → por el criterio del n-ésimo término, la serie diverge.' };
+  }
+
+  const baseN = usable[0].n;
+  const consec = [baseN, baseN + 1, baseN + 2, baseN + 3].map(termSignAndLn);
+  const isAlternating = consec.every(t => t.sign !== 0) &&
+    consec.every((t, i) => i === 0 || t.sign !== consec[i - 1].sign);
+
+  if (isAlternating) {
+    return { verdict: 'cv', reason: 'leibniz', detail: 'Es una serie alternante cuyos términos decrecen a 0 en x = ' + fmtX(xVal) + ' → por el criterio de Leibniz, converge.' };
+  }
+
+  const regressionPoints = usable.slice(-6);
+  const xs = regressionPoints.map(t => Math.log(t.n));
+  const ys = regressionPoints.map(t => t.ln);
+  const slope = linearRegression(xs, ys).slope;
+  const pApprox = -slope;
+
+  if (pApprox > 1.03) {
+    return { verdict: 'cv', reason: 'p-series', pApprox: pApprox, detail: 'Los términos decaen aproximadamente como 1/n^' + pApprox.toFixed(2) + ' (p > 1) en x = ' + fmtX(xVal) + ' → por comparación con la serie p, converge absolutamente.' };
+  }
+  if (pApprox < 0.97) {
+    return { verdict: 'dv', reason: 'p-series', pApprox: pApprox, detail: 'Los términos decaen muy lentamente (≈ 1/n^' + pApprox.toFixed(2) + ', p < 1) en x = ' + fmtX(xVal) + ' → por comparación con la serie p, diverge.' };
+  }
+  return { verdict: 'dv', reason: 'harmonic', pApprox: pApprox, detail: 'Los términos decaen aproximadamente como 1/n (caso límite armónico, p ≈ 1) en x = ' + fmtX(xVal) + ' → diverge.' };
+}
+
+// ════════════════════════════════════════════════════════════════
+// INTERFAZ DE USUARIO
+// ════════════════════════════════════════════════════════════════
+
+const coefInput = document.getElementById('coefInput');
+const centerInput = document.getElementById('centerInput');
+const errorBox = document.getElementById('errorBox');
+const resultsPanel = document.getElementById('resultsPanel');
+const solveBtn = document.getElementById('solveBtn');
+
+let currentMethod = 'ratio';
+
+document.querySelectorAll('.method-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    currentMethod = card.dataset.method;
+  });
+});
+
+document.querySelectorAll('.symbol-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = document.getElementById(btn.dataset.insert);
+    const val = btn.dataset.val;
+    const start = target.selectionStart ?? target.value.length;
+    const end = target.selectionEnd ?? target.value.length;
+    target.value = target.value.slice(0, start) + val + target.value.slice(end);
+    target.focus();
+    const cursorPos = val.includes('()') ? start + val.indexOf('(') + 1 : start + val.length;
+    target.setSelectionRange(cursorPos, cursorPos);
+  });
+});
+
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    coefInput.value = btn.dataset.coef;
+    centerInput.value = btn.dataset.center;
+    solve();
+  });
+});
+
+function fmtNum(x) {
+  if (x === Infinity) return '∞';
+  if (x === -Infinity) return '-∞';
+  if (Number.isNaN(x)) return '?';
+  if (Math.abs(x - Math.round(x)) < 1e-6) {
+    const r = Math.round(x);
+    return r === 0 ? '0' : String(r);
+  }
+  let s = x.toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
+  if (s === '-0' || s === '-') s = '0';
+  return s;
+}
+
+function addStep(title, mathHtml) {
+  const steps = document.getElementById('stepsOut');
+  const li = document.createElement('li');
+  li.innerHTML = '<strong>' + title + '</strong><div class="math">' + mathHtml + '</div>';
+  steps.appendChild(li);
+}
+
+function tagHtml(v) {
+  if (v === 'cv') return '<span class="tag cv">✓ Converge</span>';
+  if (v === 'dv') return '<span class="tag dv">✕ Diverge</span>';
+  return '<span class="tag ic">~ Revisar a mano</span>';
+}
+
+function quickValidate(exprRaw) {
+  // Validación de sintaxis: probamos evaluar en n=10 y n=11 de forma directa.
+  try {
+    const expr = sanitizeExpr(exprRaw);
+    const node = math.parse(expr);
+    const code = node.compile();
+    const v1 = code.evaluate({ n: 10 });
+    const v2 = code.evaluate({ n: 11 });
+    if (typeof v1 !== 'number' || typeof v2 !== 'number') return false;
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function solve() {
+  errorBox.innerHTML = '';
+  coefInput.classList.remove('invalid');
+  centerInput.classList.remove('invalid');
+
+  const coefExprRaw = coefInput.value.trim();
+  const centerRaw = centerInput.value.trim();
+
+  let center;
+  try {
+    center = math.evaluate(centerRaw);
+    if (typeof center !== 'number' || !Number.isFinite(center)) throw new Error();
+  } catch (e) {
+    centerInput.classList.add('invalid');
+    errorBox.innerHTML = '<div class="error-box">El centro "a" no es un número válido.</div>';
+    resultsPanel.classList.remove('show');
+    return;
+  }
+
+  if (!quickValidate(coefExprRaw)) {
+    coefInput.classList.add('invalid');
+    errorBox.innerHTML = '<div class="error-box">No se pudo interpretar cₙ. Revisa la sintaxis (usa * para multiplicar, ^ para potencias).</div>';
+    resultsPanel.classList.remove('show');
+    return;
+  }
+
+  solveBtn.disabled = true;
+  solveBtn.textContent = 'Calculando…';
+
+  // Pequeño defer para que el navegador pinte el estado "calculando"
+  // antes de la ráfaga de evaluaciones (la escalera densa puede tomar
+  // unos cientos de ms en expresiones con muchas funciones).
+  setTimeout(() => {
+    try {
+      runAnalysis(coefExprRaw, center);
+    } finally {
+      solveBtn.disabled = false;
+      solveBtn.textContent = 'Calcular Radio e Intervalo de Convergencia';
+    }
+  }, 10);
+}
+
+function runAnalysis(coefExprRaw, center) {
+  let result, methodLabel, methodFormula;
+  if (currentMethod === 'ratio') {
+    methodLabel = 'Criterio de la Razón';
+    methodFormula = 'L = lim |c_(n+1) / cₙ|';
+    result = ratioTestL(coefExprRaw);
+  } else {
+    methodLabel = 'Criterio de la Raíz';
+    methodFormula = 'L = lim ⁿ√|cₙ|';
+    result = rootTestL(coefExprRaw);
+  }
+
+  const L = result.L;
+
+  if (Number.isNaN(L)) {
+    errorBox.innerHTML = '<div class="error-box">No fue posible estimar el límite L con suficiente confianza. Verifica que cₙ esté bien definido para n grande, o prueba con el otro criterio.</div>';
+    resultsPanel.classList.remove('show');
+    return;
+  }
+
+  let R;
+  if (L === 0) R = Infinity;
+  else if (L === Infinity) R = 0;
+  else R = 1 / L;
+
+  document.getElementById('radiusVal').textContent = R === Infinity ? 'R = ∞' : ('R = ' + fmtNum(R));
+  document.getElementById('centerVal').textContent = 'a = ' + fmtNum(center);
+  document.getElementById('limitVal').textContent = fmtNum(L);
+
+  const precisionNote = document.getElementById('precisionNote');
+  precisionNote.textContent = result.confidence === 'exact'
+    ? 'L calculado de forma exacta (la secuencia se estabilizó sin necesidad de extrapolar).'
+    : 'L estimado por extrapolación numérica de alta precisión (aceleración de Aitken sobre espacio logarítmico).';
+
+  const steps = document.getElementById('stepsOut');
+  steps.innerHTML = '';
+  addStep('Método aplicado', methodLabel + ' &nbsp;·&nbsp; ' + methodFormula);
+  addStep('Coeficiente analizado', 'cₙ = ' + coefExprRaw);
+  addStep('Valor estimado de L', 'L ≈ ' + fmtNum(L));
+  addStep('Radio de convergencia', R === Infinity
+    ? 'L = 0 → R = ∞ (la serie converge para todo x ∈ ℝ)'
+    : (L === Infinity ? 'L = ∞ → R = 0 (la serie sólo converge en x = a)' : 'R = 1/L = 1/' + fmtNum(L) + ' = ' + fmtNum(R)));
+
+  const intervalBar = document.getElementById('intervalBar');
+  const endpointsOut = document.getElementById('endpointsOut');
+  const finalVerdict = document.getElementById('finalVerdict');
+
+  if (R === 0) {
+    intervalBar.innerHTML = '<div class="interval-endpoint"><span>Intervalo</span><span class="interval-endpoint-val">{ x = ' + fmtNum(center) + ' }</span></div>';
+    endpointsOut.innerHTML = '<p style="font-size:13px;color:var(--muted);">No hay extremos que comprobar: el radio es 0, así que el único punto de convergencia es el centro mismo.</p>';
+    finalVerdict.innerHTML = '<strong>Conclusión:</strong> la serie converge únicamente en x = ' + fmtNum(center) + '. Para cualquier otro valor de x, diverge.';
+    resultsPanel.classList.add('show');
+    resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+
+  if (R === Infinity) {
+    intervalBar.innerHTML = '<div class="interval-endpoint"><span class="interval-endpoint-val">−∞</span></div><div class="interval-line"></div><div class="interval-endpoint"><span class="interval-endpoint-val">+∞</span></div>';
+    endpointsOut.innerHTML = '<p style="font-size:13px;color:var(--muted);">No hay extremos que comprobar: el radio es infinito, así que el intervalo de convergencia es toda la recta real.</p>';
+    finalVerdict.innerHTML = '<strong>Conclusión:</strong> la serie converge para todo x ∈ ℝ (intervalo de convergencia = (−∞, +∞)).';
+    resultsPanel.classList.add('show');
+    resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+
+  const lower = center - R;
+  const upper = center + R;
+
+  intervalBar.innerHTML = '<div class="interval-endpoint"><span class="interval-endpoint-val">' + fmtNum(lower) + '</span></div><div class="interval-line"></div><div class="interval-endpoint"><span class="interval-endpoint-val">' + fmtNum(upper) + '</span></div>';
+
+  const lowRes = analyzeEndpoint(coefExprRaw, lower, center);
+  const highRes = analyzeEndpoint(coefExprRaw, upper, center);
+
+  endpointsOut.innerHTML =
+    '<div class="endpoint-block"><div class="endpoint-block-head"><div class="endpoint-block-title">Extremo inferior · x = ' + fmtNum(lower) + '</div>' + tagHtml(lowRes.verdict) + '</div>' +
+    '<div class="endpoint-block-series">Σ cₙ·(' + fmtNum(lower) + ' − ' + fmtNum(center) + ')ⁿ</div>' +
+    '<div class="endpoint-block-note">' + lowRes.detail + '</div></div>' +
+    '<div class="endpoint-block"><div class="endpoint-block-head"><div class="endpoint-block-title">Extremo superior · x = ' + fmtNum(upper) + '</div>' + tagHtml(highRes.verdict) + '</div>' +
+    '<div class="endpoint-block-series">Σ cₙ·(' + fmtNum(upper) + ' − ' + fmtNum(center) + ')ⁿ</div>' +
+    '<div class="endpoint-block-note">' + highRes.detail + '</div></div>';
+
+  const lowBracket = lowRes.verdict === 'cv' ? '[' : (lowRes.verdict === 'ic' ? '[?' : '(');
+  const highBracket = highRes.verdict === 'cv' ? ']' : (highRes.verdict === 'ic' ? '?]' : ')');
+  const intervalNotation = lowBracket + fmtNum(lower) + ', ' + fmtNum(upper) + highBracket;
+
+  let uncertainNote = '';
+  if (lowRes.verdict === 'ic' || highRes.verdict === 'ic') {
+    uncertainNote = ' (verifica el o los extremos marcados como "Revisar a mano" antes de dar esto por definitivo).';
+  }
+
+  finalVerdict.innerHTML = '<strong>Intervalo de convergencia:</strong> ' + intervalNotation + uncertainNote;
+
+  resultsPanel.classList.add('show');
+  resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+solveBtn.addEventListener('click', solve);
+coefInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') solve(); });
+centerInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') solve(); });
+
+</script>
+</body>
+</html>
